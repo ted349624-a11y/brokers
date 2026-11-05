@@ -1,0 +1,22 @@
+name: Discord remove timeout
+
+on:
+  workflow_dispatch:
+    inputs:
+      username:
+        description: Discord username (e.g. houla9434)
+        required: true
+
+jobs:
+  untimeout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Remove timeout
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          USERNAME: ${{ inputs.username }}
+        run: python3 discord/untimeout.py

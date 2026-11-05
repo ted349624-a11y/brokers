@@ -1,0 +1,26 @@
+name: Discord give role
+
+on:
+  workflow_dispatch:
+    inputs:
+      username:
+        description: Discord username (e.g. houla9434)
+        required: true
+      role:
+        description: Role name (Broker, GTD, Mod, Team)
+        required: true
+
+jobs:
+  add-role:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Give role
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          USERNAME: ${{ inputs.username }}
+          ROLE: ${{ inputs.role }}
+        run: python3 discord/add_role.py

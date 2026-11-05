@@ -1,0 +1,23 @@
+name: Discord GTD for first members
+
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: How many of the earliest members get GTD
+        required: true
+        default: "25"
+
+jobs:
+  first-gtd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Give GTD to the earliest members
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          COUNT: ${{ inputs.count }}
+        run: python3 discord/first_gtd.py

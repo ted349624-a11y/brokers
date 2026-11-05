@@ -89,6 +89,12 @@ def main():
             "trigger_metadata": {"regex_patterns": [r"0x[a-f0-9]{40}"]},
             "actions": [block("Don't post wallet addresses in Discord. Submit your wallet on elysiumbroker.xyz."), alert],
         },
+        {   # no big header text (# / ## / ###) from members
+            "name": "EB · No big text",
+            "trigger_type": 1,
+            "trigger_metadata": {"regex_patterns": [r"^#{1,3}\s", r"\n#{1,3}\s"]},
+            "actions": [block("Big header text (#) is not allowed. Please write normally.")],
+        },
         {
             "name": "EB · Mass mentions",
             "trigger_type": 5,

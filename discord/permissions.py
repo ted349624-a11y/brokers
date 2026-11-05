@@ -12,7 +12,8 @@ PRIV_THREADS = 1 << 36
 NO_WRITE = SEND | THREADS_SEND | PUB_THREADS | PRIV_THREADS
 EMBED, ATTACH = 1 << 14, 1 << 15
 NO_MEDIA = EMBED | ATTACH          # no link previews, no photos/files
-OPEN = {"general", "gm", "memes", "support"}
+OPEN = {"general", "gm", "support"}
+HIDDEN = {"memes"}   # removed channels: hidden from members (delete them in Discord if you like)
 SKIP = {"broker-lounge", "team-chat", "mod-log"}   # handled by their own role rules
 
 
@@ -28,6 +29,10 @@ def main():
         if c["type"] not in (0, 5, 15):          # text, announcement, forum
             continue
         name = base(c["name"])
+        if name in HIDDEN:
+            call("PUT", f"/channels/{c['id']}/permissions/{everyone}", {"type": 0, "allow": "0", "deny": str(VIEW)})
+            print(f"#{name}: hidden from members")
+            continue
         if name in SKIP:
             print(f"Unchanged: #{name}")
             continue

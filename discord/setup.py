@@ -177,7 +177,6 @@ def main():
     channel("general", comm, open_chat, "Talk Elysium, Hyperliquid and brokers.", slowmode=3)
     channel("gm", comm, open_chat, "gm brokers.", slowmode=10)
     channel("x-raids", comm, open_chat, "Share our posts on X and support them.", slowmode=30)
-    channel("memes", comm, open_chat, "Keep it clean.", slowmode=10)
 
     vip = category("BROKER LOUNGE", [ow(everyone, 0, VIEW), ow(broker, VIEW), ow(team, VIEW), ow(mod, VIEW)])
     channel("broker-lounge", vip, broker_only, "Whitelisted brokers only.")

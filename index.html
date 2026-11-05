@@ -112,7 +112,7 @@ const CONFIG = {
   X_HANDLE: "elysiumbroker",          // project X username, no @
   TWEET_ID: "1234567890123456789",    // the whitelist post: like / repost / reply
   TOTAL_SPOTS: 1000,                  // whitelist size shown in the meter
-  SUBMIT_URL: ""                      // Google Apps Script web app URL ("" = demo mode)
+  SUBMIT_URL: "/api/apply"            // Vercel API route (saves to Upstash Redis)
 };
 /* ============================== */
 
@@ -214,10 +214,10 @@ async function submit(e){
   if(CONFIG.SUBMIT_URL){
     try{
       const r=await fetch(CONFIG.SUBMIT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({handle,wallet,tasks:TASKS.map(t=>t.id).join(",")})});
-      const j=await r.json();
+      const j=await r.json().catch(()=>({ok:false}));
       if(!j.ok){
         sb.disabled=false; sb.textContent="Apply whitelist";
-        document.getElementById("e-wa").textContent = j.error==="duplicate" ? "This wallet or X account is already on the list." : "Some details look wrong. Check them and try again.";
+        document.getElementById("e-wa").textContent = j.error==="duplicate" ? "This wallet or X account is already on the list." : j.error==="rate" ? "Too many attempts. Wait a minute and try again." : j.error==="invalid" ? "Some details look wrong. Check them and try again." : "The whitelist is not accepting entries right now. Try again soon.";
         return;
       }
       no=j.n;

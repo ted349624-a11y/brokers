@@ -1,18 +1,15 @@
 # Elysium Broker — Whitelist
 
-Static whitelist site for the Elysium Broker NFT. Deploys on Vercel as-is (no build step).
+Static site + two Vercel functions. Entries are stored in Upstash Redis (free tier).
+
+## Setup on Vercel
+1. Project → **Storage** → Create / Connect → **Upstash for Redis** (free plan) → connect to this project.
+2. Project → Settings → **Environment Variables** → add `ADMIN_KEY` = a long secret only you know.
+3. Redeploy.
+
+## Get the list
+`https://brokers-ashen.vercel.app/api/export?key=YOUR_ADMIN_KEY` → downloads a CSV.
+Add `&format=json` for JSON.
 
 ## Settings
-Edit the `CONFIG` block near the bottom of `index.html`:
-- `X_HANDLE` — project X username
-- `TWEET_ID` — post to like / repost / comment on
-- `TOTAL_SPOTS` — whitelist size
-- `SUBMIT_URL` — Google Apps Script web app URL (empty = demo mode, nothing is saved)
-
-## Saving entries (Google Sheets)
-1. Create a Google Sheet → Extensions → Apps Script, paste `apps-script/Code.gs`.
-2. Deploy → New deployment → Web app. Execute as: Me. Who has access: Anyone.
-3. Paste the web app URL into `SUBMIT_URL` and push.
-
-## Vercel
-Import this repo in Vercel → Framework preset: Other → Deploy.
+`CONFIG` block near the bottom of `index.html`: `X_HANDLE`, `TWEET_ID`, `TOTAL_SPOTS`.

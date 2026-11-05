@@ -13,7 +13,10 @@ seen = {}
 for ch in string.ascii_lowercase + string.digits + "_.":
     for m in call("GET", f"/guilds/{gid}/members/search?limit=1000&query=" + urllib.parse.quote(ch)):
         seen[m["user"]["id"]] = m
-winners = sorted((m for m in seen.values() if gtd in m["roles"]), key=lambda m: m["joined_at"])
+owner = call("GET", f"/guilds/{gid}")["owner_id"]
+team = {r["id"] for r in call("GET", f"/guilds/{gid}/roles") if r["name"] in ("Team", "Mod")}
+winners = sorted((m for m in seen.values() if gtd in m["roles"] and m["user"]["id"] != owner
+                  and not (team & set(m["roles"])) and not m["user"].get("bot")), key=lambda m: m["joined_at"])
 print(f"Winners: {len(winners)}")
 
 text = (
@@ -30,8 +33,13 @@ text = (
     "<https://x.com/elysiumbroker>"
 )
 print(len(text))
-call("POST", f"/channels/{chans['announcements']}/messages", {
-    "content": text,
-    "allowed_mentions": {"parse": ["everyone", "users"]},
-})
-print("Posted in #announcements")
+cid = chans["announcements"]
+me = call("GET", "/users/@me")["id"]
+prev = [m for m in call("GET", f"/channels/{cid}/messages?limit=20")
+        if m["author"]["id"] == me and "first GTD spots" in m.get("content", "")]
+if prev:   # fix the existing post in place (editing does not ping again)
+    call("PATCH", f"/channels/{cid}/messages/{prev[0]['id']}", {"content": text, "allowed_mentions": {"parse": []}})
+    print("Edited the announcement in #announcements")
+else:
+    call("POST", f"/channels/{cid}/messages", {"content": text, "allowed_mentions": {"parse": ["everyone", "users"]}})
+    print("Posted in #announcements")

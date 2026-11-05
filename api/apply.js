@@ -15,20 +15,20 @@ module.exports = async (req, res) => {
 
     // basic rate limit: 5 attempts per IP per minute
     const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "unknown";
-    const hits = await redis("INCR", `rl:${ip}`);
-    if (hits === 1) await redis("EXPIRE", `rl:${ip}`, 60);
+    const hits = await redis("INCR", `eb:rl:${ip}`);
+    if (hits === 1) await redis("EXPIRE", `eb:rl:${ip}`, 60);
     if (hits > 5) return res.status(429).json({ ok: false, error: "rate" });
 
     // one entry per X account and per wallet
-    if (!(await redis("SET", `h:${handle}`, wallet, "NX"))) return res.status(409).json({ ok: false, error: "duplicate" });
-    if (!(await redis("SET", `w:${wallet}`, handle, "NX"))) {
-      await redis("DEL", `h:${handle}`);
+    if (!(await redis("SET", `eb:h:${handle}`, wallet, "NX"))) return res.status(409).json({ ok: false, error: "duplicate" });
+    if (!(await redis("SET", `eb:w:${wallet}`, handle, "NX"))) {
+      await redis("DEL", `eb:h:${handle}`);
       return res.status(409).json({ ok: false, error: "duplicate" });
     }
 
-    const n = await redis("INCR", "wl:count");
+    const n = await redis("INCR", "eb:wl:count");
     const entry = { n, handle, wallet, tasks: String(body.tasks || "").slice(0, 100), ts: new Date().toISOString() };
-    await redis("RPUSH", "wl:entries", JSON.stringify(entry));
+    await redis("RPUSH", "eb:wl:entries", JSON.stringify(entry));
     return res.status(200).json({ ok: true, n });
   } catch (e) {
     return res.status(500).json({ ok: false, error: e.message === "db_not_configured" ? "db_not_configured" : "server" });

@@ -70,6 +70,8 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 .task-ico svg{width:26px;height:26px;fill:none;stroke:var(--fg);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 h2{font-family:var(--serif);font-weight:400;font-size:clamp(32px,6vw,42px);line-height:1.05;margin:0;text-wrap:balance}
 .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.postlink{font-family:var(--mono);font-size:12.5px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere;max-width:100%}
+.postlink:hover{color:var(--fg)}
 .back{background:none;border:0;color:var(--muted);font-family:var(--sans);font-size:14px;cursor:pointer;padding:4px}
 .back:hover{color:var(--fg)}
 
@@ -124,12 +126,13 @@ const I = {
   notif:'<svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
   reply:'<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>'
 };
+const POST = "https://x.com/"+CONFIG.X_HANDLE+"/status/"+CONFIG.TWEET_ID;
 const TASKS = [
   {id:"follow",t:"Follow @"+CONFIG.X_HANDLE,c:"Follow the broker on X to stay on the desk.",b:"Follow on X",u:"https://x.com/intent/follow?screen_name="+CONFIG.X_HANDLE},
-  {id:"like",t:"Like the post",c:"Like the whitelist post.",b:"Like on X",u:"https://x.com/intent/like?tweet_id="+CONFIG.TWEET_ID},
-  {id:"rt",t:"Repost",c:"Share it with your timeline.",b:"Repost on X",u:"https://x.com/intent/retweet?tweet_id="+CONFIG.TWEET_ID},
+  {id:"like",t:"Like the post",c:"Open the post and tap the heart.",b:"Open post",post:1,u:POST},
+  {id:"rt",t:"Repost",c:"Open the post and repost it.",b:"Open post",post:1,u:POST},
   {id:"notif",t:"Turn on notifications",c:"Open the profile and tap the bell so you don't miss the mint.",b:"Open profile",u:"https://x.com/"+CONFIG.X_HANDLE,confirm:"Bell is on"},
-  {id:"reply",t:"Leave a comment",c:"Reply in your own words. Bot or copy-paste replies are removed.",b:"Reply on X",u:"https://x.com/intent/post?in_reply_to="+CONFIG.TWEET_ID,confirm:"I commented"}
+  {id:"reply",t:"Leave a comment",c:"Open the post and reply in your own words. Bot or copy-paste replies are removed.",b:"Open post",post:1,u:POST,confirm:"I commented"}
 ];
 
 const S = {get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -172,6 +175,7 @@ function task(i){
     <div class="row">
       <a class="pill ${opened?"ghost":""} cta" id="open" href="${k.u}" target="_blank" rel="noopener">${esc(k.b)}</a>
     </div>
+    ${k.post?`<a class="postlink" href="${POST}" target="_blank" rel="noopener">x.com/${esc(CONFIG.X_HANDLE)}/status/${esc(CONFIG.TWEET_ID)}</a>`:""}
     ${opened?`<button class="pill cta" id="next" type="button">${k.confirm?esc(k.confirm)+" · Continue":"Continue"}</button>`:`<p class="cap" style="font-size:13px">Continue unlocks after you open X.</p>`}
     ${i>0?'<button class="back" id="back" type="button">← Back</button>':""}
   </div>`;

@@ -8,6 +8,7 @@ ROLES = {
     "Mod":    {"hoist": True},
     "GTD":    {"hoist": True},
     "Broker": {"hoist": True},
+    "OG":     {"hoist": True},
 }
 
 gid = call("GET", "/users/@me/guilds")[0]["id"]

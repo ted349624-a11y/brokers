@@ -20,6 +20,7 @@ OPEN = {"general", "gm", "support"}
 HIDDEN = {"memes"}
 STAFF_ONLY = {"team-chat", "mod-log", "team"}
 BROKER_ONLY = {"gtd-lounge", "gtd lounge", "wl-lounge", "wl lounge", "broker-lounge", "broker lounge"}
+OG_ONLY = {"og-lounge", "og lounge"}
 GATE = "verify"
 
 
@@ -52,6 +53,10 @@ def main():
         elif name in STAFF_ONLY:
             ows = [ow(everyone, 0, VIEW)] + staff
             label = "team only"
+        elif name in OG_ONLY:
+            og = roles.get("OG", {}).get("id")
+            ows = [ow(everyone, 0, VIEW)] + ([ow(og, READ | SEND, NO_MEDIA)] if og else []) + staff
+            label = "OG only"
         elif name in BROKER_ONLY:
             ows = [ow(everyone, 0, VIEW), ow(broker, READ | SEND, NO_MEDIA)] + staff
             label = "brokers only"

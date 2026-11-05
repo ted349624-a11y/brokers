@@ -60,6 +60,8 @@ PRETTY = {
     "team-chat": "🔒" + SEP + "team-chat",
     "mod-log": "🛡️" + SEP + "mod-log",
     "trading floor": "📈 Trading Floor",
+    "og lounge": "OG Lounge " + LINE * 10,
+    "og-lounge": "🌸" + SEP + "og-lounge",
 }
 CATEGORY_SUPPORT = "Support " + LINE * 10
 CHANNEL_SUPPORT = "🎫" + SEP + "support"

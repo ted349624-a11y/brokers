@@ -128,7 +128,7 @@ const I = {
 };
 const POST = "https://x.com/"+CONFIG.X_HANDLE+"/status/"+CONFIG.TWEET_ID;
 const TASKS = [
-  {id:"follow",t:"Follow @"+CONFIG.X_HANDLE,c:"Follow the broker on X to stay on the desk.",b:"Follow on X",u:"https://x.com/intent/follow?screen_name="+CONFIG.X_HANDLE},
+  {id:"follow",t:"Follow @"+CONFIG.X_HANDLE,c:"Follow the broker on X to stay on the desk.",b:"Open profile",u:"https://x.com/"+CONFIG.X_HANDLE},
   {id:"like",t:"Like the post",c:"Open the post and tap the heart.",b:"Open post",post:1,u:POST},
   {id:"rt",t:"Repost",c:"Open the post and repost it.",b:"Open post",post:1,u:POST},
   {id:"notif",t:"Turn on notifications",c:"Open the profile and tap the bell so you don't miss the mint.",b:"Open profile",u:"https://x.com/"+CONFIG.X_HANDLE,confirm:"Bell is on"},

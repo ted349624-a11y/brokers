@@ -6,7 +6,7 @@ from setup import call
 ROLES = {
     "Team":   {"hoist": True},
     "Mod":    {"hoist": True},
-    "WL":     {"hoist": True},
+    "GTD":    {"hoist": True},
     "Broker": {"hoist": True},
 }
 

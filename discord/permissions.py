@@ -3,7 +3,7 @@ Who sees and types where.
 
 - New members (@everyone) see ONLY #verify. They press ✅ and get the Broker role.
 - Broker role: sees the server. Can write ONLY in OPEN channels; everything else is read-only.
-- #wl-lounge: WL role only. Team channels: Team/Mod only.
+- #gtd-lounge: GTD role only. Team channels: Team/Mod only.
 - Nobody but Team/Mod/owner can post links or photos (AutoMod + no attach/embed rights).
 """
 import os, sys
@@ -19,7 +19,7 @@ READ = VIEW | HISTORY | REACT
 OPEN = {"general", "gm", "support"}
 HIDDEN = {"memes"}
 STAFF_ONLY = {"team-chat", "mod-log", "team"}
-BROKER_ONLY = {"wl-lounge", "wl lounge", "broker-lounge", "broker lounge"}
+BROKER_ONLY = {"gtd-lounge", "gtd lounge", "wl-lounge", "wl lounge", "broker-lounge", "broker lounge"}
 GATE = "verify"
 
 
@@ -34,7 +34,7 @@ def main():
     user = roles.get("Broker", {}).get("id")   # verified members
     if not user:
         sys.exit("Broker role missing. Run 'Discord verify' first.")
-    mod, team, broker = roles["Mod"]["id"], roles["Team"]["id"], roles["WL"]["id"]   # broker = WL lounge access
+    mod, team, broker = roles["Mod"]["id"], roles["Team"]["id"], roles["GTD"]["id"]   # broker = GTD lounge access
 
     # server-wide: no photos/files, no link previews for members
     ev = roles["@everyone"]

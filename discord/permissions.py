@@ -1,49 +1,74 @@
 """
-Who can type where. Members can write ONLY in the channels listed in OPEN.
-Every other text channel is read-only for members (they can still read and react).
-#broker-lounge stays writable for the Broker role (only Brokers can see it).
-Team (admin), Mod and the server owner can always post.
+Who sees and types where.
+
+- New members (@everyone) see ONLY #verify. They press ✅ and get the User role.
+- User role: sees the server. Can write ONLY in OPEN channels; everything else is read-only.
+- #broker-lounge: Broker role only. Team channels: Team/Mod only.
+- Nobody but Team/Mod/owner can post links or photos (AutoMod + no attach/embed rights).
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from setup import call, base, VIEW, SEND, REACT, HISTORY, THREADS_SEND, PUB_THREADS
+from setup import call, base, VIEW, SEND, REACT, HISTORY, THREADS_SEND, PUB_THREADS, CONNECT, SPEAK
 
 PRIV_THREADS = 1 << 36
 NO_WRITE = SEND | THREADS_SEND | PUB_THREADS | PRIV_THREADS
 EMBED, ATTACH = 1 << 14, 1 << 15
-NO_MEDIA = EMBED | ATTACH          # no link previews, no photos/files
+NO_MEDIA = EMBED | ATTACH
+READ = VIEW | HISTORY | REACT
+
 OPEN = {"general", "gm", "support"}
-HIDDEN = {"memes"}   # removed channels: hidden from members (delete them in Discord if you like)
-SKIP = {"broker-lounge", "team-chat", "mod-log"}   # handled by their own role rules
+HIDDEN = {"memes"}
+STAFF_ONLY = {"team-chat", "mod-log", "team"}
+BROKER_ONLY = {"broker-lounge", "broker lounge"}
+GATE = "verify"
+
+
+def ow(i, allow=0, deny=0):
+    return {"id": i, "type": 0, "allow": str(allow), "deny": str(deny)}
 
 
 def main():
     gid = call("GET", "/users/@me/guilds")[0]["id"]
     everyone = gid
-    # server-wide: @everyone can't attach files or embed links (covers #broker-lounge too)
-    role = next(r for r in call("GET", f"/guilds/{gid}/roles") if r["id"] == everyone)
-    perms = int(role["permissions"]) & ~NO_MEDIA
-    call("PATCH", f"/guilds/{gid}/roles/{everyone}", {"permissions": str(perms)})
-    print("@everyone: no photos/files, no link previews")
+    roles = {r["name"]: r for r in call("GET", f"/guilds/{gid}/roles")}
+    user = roles.get("User", {}).get("id")
+    if not user:
+        sys.exit("User role missing. Run 'Discord verify' first.")
+    mod, team, broker = roles["Mod"]["id"], roles["Team"]["id"], roles["Broker"]["id"]
+
+    # server-wide: no photos/files, no link previews for members
+    ev = roles["@everyone"]
+    call("PATCH", f"/guilds/{gid}/roles/{everyone}", {"permissions": str(int(ev["permissions"]) & ~NO_MEDIA)})
+
+    staff = [ow(team, VIEW | SEND | HISTORY), ow(mod, VIEW | SEND | HISTORY)]
     for c in call("GET", f"/guilds/{gid}/channels"):
-        if c["type"] not in (0, 5, 15):          # text, announcement, forum
-            continue
-        name = base(c["name"])
-        if name in HIDDEN:
-            call("PUT", f"/channels/{c['id']}/permissions/{everyone}", {"type": 0, "allow": "0", "deny": str(VIEW)})
-            print(f"#{name}: hidden from members")
-            continue
-        if name in SKIP:
-            print(f"Unchanged: #{name}")
-            continue
-        if name in OPEN:
-            allow, deny = VIEW | HISTORY | REACT | SEND, NO_MEDIA
-            state = "members can write"
+        name, kind = base(c["name"]), c["type"]
+        if name == GATE:
+            ows = [ow(everyone, READ, NO_WRITE | NO_MEDIA), ow(user, 0, VIEW)] + staff   # verified users don't need it
+            label = "only new members see it"
+        elif name in HIDDEN:
+            ows = [ow(everyone, 0, VIEW), ow(user, 0, VIEW)] + staff
+            label = "hidden"
+        elif name in STAFF_ONLY:
+            ows = [ow(everyone, 0, VIEW)] + staff
+            label = "team only"
+        elif name in BROKER_ONLY:
+            ows = [ow(everyone, 0, VIEW), ow(broker, READ | SEND, NO_MEDIA)] + staff
+            label = "brokers only"
+        elif kind == 2:  # voice
+            ows = [ow(everyone, 0, VIEW), ow(user, VIEW | CONNECT | SPEAK)] + staff
+            label = "verified users"
+        elif kind == 4:  # category
+            ows = [ow(everyone, 0, VIEW), ow(user, VIEW)] + staff
+            label = "verified users"
+        elif name in OPEN:
+            ows = [ow(everyone, 0, VIEW), ow(user, READ | SEND, NO_MEDIA)] + staff
+            label = "verified users can write"
         else:
-            allow, deny = VIEW | HISTORY | REACT, NO_WRITE | NO_MEDIA
-            state = "read-only"
-        call("PUT", f"/channels/{c['id']}/permissions/{everyone}", {"type": 0, "allow": str(allow), "deny": str(deny)})
-        print(f"#{name}: {state}")
+            ows = [ow(everyone, 0, VIEW), ow(user, READ, NO_WRITE | NO_MEDIA)] + staff
+            label = "verified users, read-only"
+        call("PATCH", f"/channels/{c['id']}", {"permission_overwrites": ows})
+        print(f"{c['name']}: {label}")
     print("\nDone.")
 
 

@@ -72,4 +72,4 @@ scum project
 # lines starting with re: are patterns that catch spelling tricks
 # like s.c.a.m, sc4m, $cam, 5cam, r.u.g, rugg
 re:(?:\b[s5]|\$)[\W_]*c[\W_]*[a4@]+[\W_]*m+
-re:\br[\W_]*u[\W_]*g+(?:[\W_]*(?:pull(?:ed|ing)?|ged|ging|gers?|s))?\b
+re:\br[\W_]*u[\W_]*g+[\W_]*(?:pull|pulled|pulling|ged|ging|ger|gers|s)?\b

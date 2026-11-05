@@ -10,7 +10,7 @@ server owner or to members with Administrator / Manage Server.
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from setup import call  # same authenticated Discord client
+from setup import call, base  # same authenticated Discord client
 
 DAY = 24 * 60 * 60
 HERE = os.path.dirname(__file__)
@@ -32,7 +32,7 @@ def main():
     gid = guilds[0]["id"]
 
     roles = {r["name"]: r["id"] for r in call("GET", f"/guilds/{gid}/roles")}
-    chans = {c["name"]: c["id"] for c in call("GET", f"/guilds/{gid}/channels")}
+    chans = {base(c["name"]): c["id"] for c in call("GET", f"/guilds/{gid}/channels") if c["type"] != 4}
     exempt = [roles[n] for n in ("Team", "Mod") if n in roles]
     log = chans.get("mod-log")
     if not log:

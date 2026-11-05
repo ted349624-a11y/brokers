@@ -6,7 +6,7 @@ Team (admin), Mod and the server owner can always post.
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from setup import call, VIEW, SEND, REACT, HISTORY, THREADS_SEND, PUB_THREADS
+from setup import call, base, VIEW, SEND, REACT, HISTORY, THREADS_SEND, PUB_THREADS
 
 PRIV_THREADS = 1 << 36
 NO_WRITE = SEND | THREADS_SEND | PUB_THREADS | PRIV_THREADS
@@ -20,7 +20,7 @@ def main():
     for c in call("GET", f"/guilds/{gid}/channels"):
         if c["type"] not in (0, 5, 15):          # text, announcement, forum
             continue
-        name = c["name"]
+        name = base(c["name"])
         if name in SKIP:
             print(f"Unchanged: #{name}")
             continue

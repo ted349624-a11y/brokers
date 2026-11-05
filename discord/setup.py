@@ -25,6 +25,49 @@ KICK, BAN, MANAGE_MSG, AUDIT = 1 << 1, 1 << 2, 1 << 13, 1 << 7
 NICKS, TIMEOUT = 1 << 27, 1 << 40
 
 
+# Channels get decorated names ("💬｜general", "The Desk ════"); scripts match on the plain part.
+SEP = "｜"   # ｜
+LINE = "═"  # ═
+def base(name):
+    n = name.split(SEP)[-1].split(LINE)[0].strip().lower()
+    while n and not (n[0].isalnum()):   # drop a leading emoji like "📈 "
+        n = n[1:].lstrip()
+    return n
+
+PRETTY = {
+    # categories
+    "start here": "Start Here " + LINE * 10,
+    "the desk": "The Desk " + LINE * 10,
+    "broker lounge": "Broker Lounge " + LINE * 8,
+    "support": None,  # filled below (same word is a channel too)
+    "team": "Team " + LINE * 12,
+    "voice": "Voice " + LINE * 12,
+    # text channels
+    "welcome": "👋" + SEP + "welcome",
+    "rules": "📜" + SEP + "rules",
+    "announcements": "📢" + SEP + "announcements",
+    "whitelist": "🎟️" + SEP + "whitelist",
+    "official-links": "🔗" + SEP + "official-links",
+    "general": "💬" + SEP + "general",
+    "gm": "☕" + SEP + "gm",
+    "x-raids": "🚀" + SEP + "x-raids",
+    "memes": "😂" + SEP + "memes",
+    "broker-lounge": "💼" + SEP + "broker-lounge",
+    "team-chat": "🔒" + SEP + "team-chat",
+    "mod-log": "🛡️" + SEP + "mod-log",
+    "trading floor": "📈 Trading Floor",
+}
+CATEGORY_SUPPORT = "Support " + LINE * 10
+CHANNEL_SUPPORT = "🎫" + SEP + "support"
+
+
+def pretty(name, is_category):
+    b = base(name)
+    if b == "support":
+        return CATEGORY_SUPPORT if is_category else CHANNEL_SUPPORT
+    return PRETTY.get(b) or name
+
+
 def call(method, path, body=None):
     for attempt in range(6):
         data = json.dumps(body).encode() if body is not None else None
@@ -89,7 +132,9 @@ def main():
     broker = role("Broker", TIE_RED, 0, hoist=True)  # whitelisted members
 
     # ---------- channels ----------
-    chans = {c["name"]: c for c in call("GET", f"/guilds/{gid}/channels")}
+    allc = call("GET", f"/guilds/{gid}/channels")
+    chans = {base(c["name"]): c for c in allc if c["type"] != 4}
+    cats = {base(c["name"]): c for c in allc if c["type"] == 4}
 
     def ow(target, allow=0, deny=0):
         return {"id": target, "type": 0, "allow": str(allow), "deny": str(deny)}
@@ -102,18 +147,18 @@ def main():
                    ow(team, VIEW | SEND), ow(mod, VIEW | SEND)]
 
     def category(name, overwrites=None):
-        if name in chans and chans[name]["type"] == 4:
-            return chans[name]["id"]
-        c = call("POST", f"/guilds/{gid}/channels", {"name": name, "type": 4,
+        if base(name) in cats:
+            return cats[base(name)]["id"]
+        c = call("POST", f"/guilds/{gid}/channels", {"name": pretty(name, True), "type": 4,
                                                       "permission_overwrites": overwrites or []})
         print(f"Category created: {name}")
         return c["id"]
 
     def channel(name, parent, overwrites, topic="", kind=0, slowmode=0):
-        if name in chans:
+        if base(name) in chans:
             print(f"Channel exists: #{name}")
-            return chans[name]["id"], False
-        body = {"name": name, "type": kind, "parent_id": parent, "permission_overwrites": overwrites}
+            return chans[base(name)]["id"], False
+        body = {"name": pretty(name, False), "type": kind, "parent_id": parent, "permission_overwrites": overwrites}
         if kind == 0:
             body["topic"] = topic
             body["rate_limit_per_user"] = slowmode

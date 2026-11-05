@@ -38,7 +38,8 @@ PRETTY = {
     # categories
     "start here": "Start Here " + LINE * 10,
     "the desk": "The Desk " + LINE * 10,
-    "broker lounge": "Broker Lounge " + LINE * 8,
+    "broker lounge": "WL Lounge " + LINE * 10,
+    "wl lounge": "WL Lounge " + LINE * 10,
     "support": None,  # filled below (same word is a channel too)
     "team": "Team " + LINE * 12,
     "voice": "Voice " + LINE * 12,
@@ -52,7 +53,8 @@ PRETTY = {
     "gm": "☕" + SEP + "gm",
     "x-raids": "🚀" + SEP + "x-raids",
     "memes": "😂" + SEP + "memes",
-    "broker-lounge": "💼" + SEP + "broker-lounge",
+    "broker-lounge": "💎" + SEP + "wl-lounge",
+    "wl-lounge": "💎" + SEP + "wl-lounge",
     "team-chat": "🔒" + SEP + "team-chat",
     "mod-log": "🛡️" + SEP + "mod-log",
     "trading floor": "📈 Trading Floor",
@@ -129,7 +131,7 @@ def main():
 
     team = role("Team", 0xF2F1EF, ADMIN, hoist=True)
     mod = role("Mod", 0x8A8986, KICK | BAN | MANAGE_MSG | AUDIT | NICKS | TIMEOUT, hoist=True)
-    broker = role("Broker", TIE_RED, 0, hoist=True)  # whitelisted members
+    broker = role("WL", TIE_RED, 0, hoist=True)  # whitelisted members
 
     # ---------- channels ----------
     allc = call("GET", f"/guilds/{gid}/channels")
@@ -178,8 +180,8 @@ def main():
     channel("gm", comm, open_chat, "gm brokers.", slowmode=10)
     channel("x-raids", comm, open_chat, "Share our posts on X and support them.", slowmode=30)
 
-    vip = category("BROKER LOUNGE", [ow(everyone, 0, VIEW), ow(broker, VIEW), ow(team, VIEW), ow(mod, VIEW)])
-    channel("broker-lounge", vip, broker_only, "Whitelisted brokers only.")
+    vip = category("WL LOUNGE", [ow(everyone, 0, VIEW), ow(broker, VIEW), ow(team, VIEW), ow(mod, VIEW)])
+    channel("wl-lounge", vip, broker_only, "Whitelisted members only.")
 
     sup = category("SUPPORT")
     channel("support", sup, open_chat, "Questions about the whitelist or mint. The team will never DM you first.",
@@ -228,7 +230,7 @@ def main():
         embed(ann, "Elysium Broker", f"The desk is open. Whitelist: {SITE}")
 
     print("\nDone. Your server is ready.")
-    print("Give yourself the Team role, and give WL winners the Broker role.")
+    print("Give yourself the Team role, and give WL winners the WL role.")
 
 
 if __name__ == "__main__":

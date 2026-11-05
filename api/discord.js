@@ -11,7 +11,7 @@ const KEY = crypto.createPublicKey({
   format: "der", type: "spki"
 });
 const API = "https://discord.com/api/v10";
-const ROLE_NAME = "User";
+const ROLE_NAME = "Broker";   // verified members
 let roleCache = {};
 
 function raw(req) {

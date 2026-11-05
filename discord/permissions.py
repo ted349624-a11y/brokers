@@ -1,9 +1,9 @@
 """
 Who sees and types where.
 
-- New members (@everyone) see ONLY #verify. They press ✅ and get the User role.
-- User role: sees the server. Can write ONLY in OPEN channels; everything else is read-only.
-- #broker-lounge: Broker role only. Team channels: Team/Mod only.
+- New members (@everyone) see ONLY #verify. They press ✅ and get the Broker role.
+- Broker role: sees the server. Can write ONLY in OPEN channels; everything else is read-only.
+- #wl-lounge: WL role only. Team channels: Team/Mod only.
 - Nobody but Team/Mod/owner can post links or photos (AutoMod + no attach/embed rights).
 """
 import os, sys
@@ -19,7 +19,7 @@ READ = VIEW | HISTORY | REACT
 OPEN = {"general", "gm", "support"}
 HIDDEN = {"memes"}
 STAFF_ONLY = {"team-chat", "mod-log", "team"}
-BROKER_ONLY = {"broker-lounge", "broker lounge"}
+BROKER_ONLY = {"wl-lounge", "wl lounge", "broker-lounge", "broker lounge"}
 GATE = "verify"
 
 
@@ -31,10 +31,10 @@ def main():
     gid = call("GET", "/users/@me/guilds")[0]["id"]
     everyone = gid
     roles = {r["name"]: r for r in call("GET", f"/guilds/{gid}/roles")}
-    user = roles.get("User", {}).get("id")
+    user = roles.get("Broker", {}).get("id")   # verified members
     if not user:
-        sys.exit("User role missing. Run 'Discord verify' first.")
-    mod, team, broker = roles["Mod"]["id"], roles["Team"]["id"], roles["Broker"]["id"]
+        sys.exit("Broker role missing. Run 'Discord verify' first.")
+    mod, team, broker = roles["Mod"]["id"], roles["Team"]["id"], roles["WL"]["id"]   # broker = WL lounge access
 
     # server-wide: no photos/files, no link previews for members
     ev = roles["@everyone"]

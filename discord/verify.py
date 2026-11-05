@@ -1,4 +1,4 @@
-"""Create the User role and the #verify channel with the ✅ button, then apply permissions."""
+"""Create the Broker (verified) role and the #verify channel with the ✅ button, then apply permissions."""
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from setup import call, base, pretty, PRETTY, SEP, TIE_RED
@@ -10,9 +10,9 @@ PRETTY["verify"] = "✅" + SEP + "verify"
 def main():
     gid = call("GET", "/users/@me/guilds")[0]["id"]
     roles = {r["name"]: r for r in call("GET", f"/guilds/{gid}/roles")}
-    if "User" not in roles:
-        call("POST", f"/guilds/{gid}/roles", {"name": "User", "color": 0, "permissions": "0", "hoist": False})
-        print("Role created: User")
+    if "Broker" not in roles:
+        call("POST", f"/guilds/{gid}/roles", {"name": "Broker", "color": 0, "permissions": "0", "hoist": False})
+        print("Role created: Broker")
 
     chans = {base(c["name"]): c for c in call("GET", f"/guilds/{gid}/channels") if c["type"] != 4}
     if "verify" in chans:

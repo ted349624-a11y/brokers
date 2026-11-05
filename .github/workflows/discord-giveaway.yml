@@ -1,0 +1,37 @@
+name: Discord giveaway
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # draws giveaways whose time is up
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: start or draw
+        required: true
+        default: draw
+      prize:
+        description: Prize role (e.g. GTD)
+        default: GTD
+      winners:
+        description: Number of winners
+        default: "25"
+      hours:
+        description: Duration in hours
+        default: "24"
+
+jobs:
+  giveaway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Giveaway
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          MODE: ${{ inputs.mode || 'draw' }}
+          PRIZE: ${{ inputs.prize || 'GTD' }}
+          WINNERS: ${{ inputs.winners || '25' }}
+          HOURS: ${{ inputs.hours || '24' }}
+        run: python3 discord/giveaway.py

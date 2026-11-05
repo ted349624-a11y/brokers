@@ -29,5 +29,8 @@ for r in allr:
     print(f"  before: {r['name']:15} position {r['position']}")
 managed = [byname[n] for n in ORDER if n in byname]
 changes = [{"id": r["id"], "position": i + 1} for i, r in enumerate(managed)]
-call("PATCH", f"/guilds/{gid}/roles", changes)
+try:
+    call("PATCH", f"/guilds/{gid}/roles", changes)
+except SystemExit as e:
+    print("Could not reorder roles (the bot's own role must be at the top of the list):", e)
 print("Order (top first):", [r["name"] for r in sorted(call("GET", f"/guilds/{gid}/roles"), key=lambda r: (-r["position"], r["id"]))])

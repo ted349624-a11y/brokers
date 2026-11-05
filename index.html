@@ -156,7 +156,7 @@ function home(){
   main.innerHTML=`<div class="stage">
     <img class="hero-img" src="${LOGO}" alt="Elysium Broker: pixel broker in a black suit and red tie">
     <button class="pill cta" id="go" type="button">${st.done?"View my pass":"Apply whitelist"}</button>
-    <p class="cap">${st.done?"You're on the list.":"Five quick tasks on X. One entry per wallet. Pass issued instantly."}</p></div>`;
+    ${st.done?'<p class="cap">You\'re on the list.</p>':""}</div>`;
   document.getElementById("go").onclick=()=>go(st.done?99:Math.max(0,st.step===-1?firstOpen():st.step));
 }
 function firstOpen(){const i=TASKS.findIndex(t=>!st.opened[t.id]);return i<0?TASKS.length:i;}

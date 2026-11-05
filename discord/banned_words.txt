@@ -34,3 +34,42 @@ name change
 renamed
 rebrand
 rebranded
+# scam patterns
+this is a scam
+its a scam
+it's a scam
+total scam
+scam project
+exit scam
+soft rug
+slow rug
+hard rug
+rug incoming
+rug soon
+gonna rug
+going to rug
+will rug
+team rugged
+dev rugged
+devs rugged
+pulled the rug
+pull the rug
+devs ran
+dev ran away
+devs ran away
+dead project
+project is dead
+project dead
+cash grab
+cashgrab
+money grab
+ruggers
+rugger
+scamz
+skam
+skammer
+scum project
+# lines starting with re: are patterns that catch spelling tricks
+# like s.c.a.m, sc4m, $cam, 5cam, r.u.g, rugg
+re:(?:\b[s5]|\$)[\W_]*c[\W_]*[a4@]+[\W_]*m+
+re:\br[\W_]*u[\W_]*g+(?:[\W_]*(?:pull(?:ed|ing)?|ged|ging|gers?|s))?\b

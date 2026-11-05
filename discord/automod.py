@@ -16,13 +16,19 @@ DAY = 24 * 60 * 60
 HERE = os.path.dirname(__file__)
 
 
-def words():
-    out = []
+def _lines():
     for line in open(os.path.join(HERE, "banned_words.txt"), encoding="utf-8"):
         w = line.strip()
         if w and not w.startswith("#"):
-            out.append(w.lower())
-    return sorted(set(out))
+            yield w
+
+
+def words():
+    return sorted({w.lower() for w in _lines() if not w.startswith("re:")})
+
+
+def patterns():
+    return [w[3:] for w in _lines() if w.startswith("re:")][:10]   # Discord allows 10 per rule
 
 
 def main():
@@ -49,7 +55,7 @@ def main():
         {   # the user's priority rule
             "name": "EB · Banned words",
             "trigger_type": 1,
-            "trigger_metadata": {"keyword_filter": words()},
+            "trigger_metadata": {"keyword_filter": words(), "regex_patterns": patterns()},
             "actions": [block("Message removed: banned word. You are timed out for 24 hours."),
                         alert, timeout(DAY)],
         },

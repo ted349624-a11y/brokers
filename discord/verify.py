@@ -11,7 +11,7 @@ def main():
     gid = call("GET", "/users/@me/guilds")[0]["id"]
     roles = {r["name"]: r for r in call("GET", f"/guilds/{gid}/roles")}
     if "Broker" not in roles:
-        call("POST", f"/guilds/{gid}/roles", {"name": "Broker", "color": 0, "permissions": "0", "hoist": False})
+        call("POST", f"/guilds/{gid}/roles", {"name": "Broker", "color": 0, "permissions": "0", "hoist": True})
         print("Role created: Broker")
 
     chans = {base(c["name"]): c for c in call("GET", f"/guilds/{gid}/channels") if c["type"] != 4}

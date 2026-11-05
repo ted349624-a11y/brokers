@@ -104,12 +104,6 @@ footer{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
     <button class="pill sm" id="topBtn" type="button">Apply whitelist</button>
   </header>
   <main id="main"></main>
-  <footer>
-    <div class="meter" id="meter" hidden>
-      <div class="n" id="remN"></div>
-      <div class="ticks" id="ticks"></div>
-    </div>
-  </footer>
 </div>
 
 <script>
@@ -234,7 +228,7 @@ async function submit(e){
     }
   }
   if(!no){let h=0;for(const c of wallet.toLowerCase())h=(h*31+c.charCodeAt(0))>>>0;no=(h%CONFIG.TOTAL_SPOTS)+1;}
-  st.done={handle,wallet,no,ts:Date.now()}; st.step=99; save(); view(); loadCount();
+  st.done={handle,wallet,no,ts:Date.now()}; st.step=99; save(); view();
 }
 
 /* ---------- personal pass ---------- */
@@ -304,7 +298,7 @@ async function loadCount(){
   if(!CONFIG.SUBMIT_URL){meter(0);return;}
   try{const r=await fetch(CONFIG.SUBMIT_URL);const j=await r.json();meter(j.count||0);}catch(e){meter(0);}
 }
-loadCount(); view();
+view();
 </script>
 
 </body>

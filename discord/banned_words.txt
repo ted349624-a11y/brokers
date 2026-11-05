@@ -1,0 +1,26 @@
+# Banned words: a message containing any of these is deleted
+# and the sender gets a 1-day timeout. One word or phrase per line.
+# Edit this file on GitHub and run "Discord moderation" again to update.
+# Matching ignores upper/lower case. Use * for "starts with": rugpul* matches rugpull, rugpulled.
+scam
+scams
+scammer
+scammers
+scamming
+scammed
+rug
+rugs
+rugged
+rugging
+rugpull
+rug pull
+rugpulled
+honeypot
+ponzi
+fraud
+dolandırıcı
+dolandırıcılar
+dolandırıcılık
+dolandırdı
+kazık
+scamci

@@ -83,6 +83,12 @@ def main():
                 ]},
             "actions": [block("Links are not allowed. Official links are in #official-links."), alert],
         },
+        {   # wallet addresses in chat: delete only, no timeout
+            "name": "EB · Wallet addresses",
+            "trigger_type": 1,
+            "trigger_metadata": {"regex_patterns": [r"0x[a-f0-9]{40}"]},
+            "actions": [block("Don't post wallet addresses in Discord. Submit your wallet on elysiumbroker.xyz."), alert],
+        },
         {
             "name": "EB · Mass mentions",
             "trigger_type": 5,

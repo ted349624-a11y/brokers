@@ -1,0 +1,21 @@
+name: Discord messages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - discord/messages.py
+
+jobs:
+  messages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Update channel posts
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: python3 discord/messages.py

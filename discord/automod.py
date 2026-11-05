@@ -71,16 +71,17 @@ def main():
             "actions": [block("Message removed: this looks like a scam. You are timed out for 24 hours."),
                         alert, timeout(DAY)],
         },
-        {
-            "name": "EB · Invite and shady links",
+        {   # members can't post links at all; Team and Mod are exempt
+            "name": "EB · No links",
             "trigger_type": 1,
             "trigger_metadata": {
                 "regex_patterns": [
-                    r"discord(?:app)?\.(?:gg|com/invite|io|me|li)/\S+",
-                    r"\b(?:bit\.ly|tinyurl\.com|t\.me|cutt\.ly|rb\.gy|is\.gd)/\S+",
+                    r"https?://",
+                    r"\bwww\.",
+                    r"discord(?:app)?\.(?:gg|com/invite|io|me|li)/",
+                    r"\b[a-z0-9-]{2,}\.(?:com|net|org|io|xyz|gg|app|me|ly|co|fun|link|site|online|club|top|live|pro|vip|shop|art|dev|tv|finance|exchange|network|money)\b",
                 ]},
-            "actions": [block("Invite and short links are not allowed. Official links are in #official-links."),
-                        alert],
+            "actions": [block("Links are not allowed. Official links are in #official-links."), alert],
         },
         {
             "name": "EB · Mass mentions",
@@ -96,6 +97,10 @@ def main():
     ]
 
     existing = {r["name"]: r for r in call("GET", f"/guilds/{gid}/auto-moderation/rules")}
+    RENAMED = {"EB · Invite and shady links": "EB · No links"}
+    for o, n in RENAMED.items():
+        if o in existing and n not in existing:
+            existing[n] = existing.pop(o)
     for r in rules:
         body = {"name": r["name"], "event_type": 1, "trigger_type": r["trigger_type"],
                 "actions": r["actions"], "enabled": True, "exempt_roles": exempt}

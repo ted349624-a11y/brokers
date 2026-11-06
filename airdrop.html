@@ -118,7 +118,8 @@ const CONFIG = {
   TWEET_ID: "2118648766442205276",   // temporary: /discord post until the airdrop post is ready
   POOL: "200,000",
   TICKER: "$BROKER",
-  INVITE: "https://discord.gg/v9EUqBe9U"
+  INVITE: "https://discord.gg/v9EUqBe9U",
+  SUBMIT_URL: "/api/airdrop"
 };
 /* ================== */
 const LOGO = document.querySelector(".mark img").src;
@@ -148,32 +149,58 @@ const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;
 const firstOpen=()=>{const i=TASKS.findIndex(t=>!st.opened[t.id]);return i<0?TASKS.length:i;};
 
 function go(step){st.step=step;save();view();}
-document.getElementById("topBtn").onclick=()=>go(st.step<0?firstOpen():st.step);
+document.getElementById("topBtn").onclick=()=>go(st.done?99:(st.step<0?firstOpen():st.step));
 
-function dots(active){return '<div class="dots">'+[0,1,2,3,4,5].map(i=>`<i class="${i<=active?"on":""}"></i>`).join("")+"</div>";}
+const STEPS = TASKS.length + 2;   // X username, 5 tasks, wallet
+function dots(active){return '<div class="dots">'+Array.from({length:STEPS},(_,i)=>`<i class="${i<=active?"on":""}"></i>`).join("")+"</div>";}
 
 function view(){
+  if(st.done && st.step!==-1) return unlocked();
   if(st.step<0) return home();
+  if(!st.handle) return askHandle();
   if(st.step<TASKS.length) return task(st.step);
-  return unlocked();
+  return askWallet();
 }
 
 function home(){
-  const done=firstOpen()>=TASKS.length;
   main.innerHTML=`<div class="stage">
     <img class="hero-img" src="${LOGO}" alt="Elysium Broker: pixel broker in a black suit and red tie">
     <div class="pool"><span class="pool-n">${CONFIG.POOL}</span><span class="pool-t">${CONFIG.TICKER}</span></div>
     <div class="count">Airdrop</div>
-    <button class="pill cta" id="go" type="button">${done?"View status":"Join the airdrop"}</button>
-    <p class="cap">${done?"All tasks done. See you in Discord.":"Complete five quick tasks on X, then join the Discord."}</p></div>`;
-  document.getElementById("go").onclick=()=>go(firstOpen());
+    <button class="pill cta" id="go" type="button">${st.done?"View my entry":"Join the airdrop"}</button>
+    <p class="cap">${st.done?"You're in the airdrop.":"Enter your X username, complete five quick tasks, then add your wallet."}</p></div>`;
+  document.getElementById("go").onclick=()=>go(st.done?99:firstOpen());
+}
+
+function askHandle(){
+  main.innerHTML=`<div class="stage">
+    ${dots(0)}
+    <div class="count">Step 1</div>
+    <h2>Your X username</h2>
+    <p class="cap">The account you'll use for the tasks.</p>
+    <form id="fh" novalidate>
+      <input class="in" id="xh" placeholder="@username" value="${esc(st.draftHandle||"")}" autocomplete="off" spellcheck="false" autocapitalize="off" aria-label="X username">
+      <div class="err" id="e-xh"></div>
+      <button class="pill" type="submit" style="margin-top:6px">Continue</button>
+    </form>
+    <button class="back" id="back" type="button">← Back</button>
+  </div>`;
+  const el=document.getElementById("xh");
+  el.addEventListener("input",()=>{st.draftHandle=el.value;save();});
+  document.getElementById("back").onclick=()=>go(-1);
+  document.getElementById("fh").addEventListener("submit",e=>{
+    e.preventDefault();
+    const v=el.value.trim().replace(/^@/,"");
+    if(!/^[A-Za-z0-9_]{1,15}$/.test(v)){el.classList.add("bad");document.getElementById("e-xh").textContent="Enter a valid X username (letters, numbers, underscore).";return;}
+    st.handle=v; go(firstOpen());
+  });
 }
 
 function task(i){
   const k=TASKS[i], opened=!!st.opened[k.id];
   main.innerHTML=`<div class="stage">
-    ${dots(i)}
-    <div class="count">Task ${i+1} of ${TASKS.length}</div>
+    ${dots(i+1)}
+    <div class="count">Task ${i+1} of ${TASKS.length} · @${esc(st.handle)}</div>
     <div class="task-ico">${I[k.id]}</div>
     <h2>${esc(k.t)}</h2>
     <p class="cap">${esc(k.c)}</p>
@@ -182,24 +209,65 @@ function task(i){
     </div>
     ${k.post?`<a class="postlink" href="${POST}" target="_blank" rel="noopener">x.com/${esc(CONFIG.X_HANDLE)}/status/${esc(CONFIG.TWEET_ID)}</a>`:""}
     ${opened?`<button class="pill cta" id="next" type="button">${k.confirm?esc(k.confirm)+" · Continue":"Continue"}</button>`:`<p class="cap" style="font-size:13px">Continue unlocks after you open X.</p>`}
-    ${i>0?'<button class="back" id="back" type="button">← Back</button>':""}
+    <button class="back" id="back" type="button">← Back</button>
   </div>`;
   document.getElementById("open").addEventListener("click",()=>{ if(!st.opened[k.id]){st.opened[k.id]=true;save();setTimeout(()=>task(i),600);} });
   const n=document.getElementById("next"); if(n) n.onclick=()=>go(i+1);
-  const b=document.getElementById("back"); if(b) b.onclick=()=>go(i-1);
+  document.getElementById("back").onclick=()=>{ if(i===0){st.handle="";go(0);} else go(i-1); };
+}
+
+function askWallet(){
+  main.innerHTML=`<div class="stage">
+    ${dots(STEPS-1)}
+    <div class="count">Final step · @${esc(st.handle)}</div>
+    <h2>Your wallet</h2>
+    <p class="cap">The EVM address that will receive ${CONFIG.TICKER}.</p>
+    <form id="fw" novalidate>
+      <input class="in" id="wa" placeholder="0x…" value="${esc(st.draftWallet||"")}" autocomplete="off" spellcheck="false" autocapitalize="off" aria-label="Wallet address">
+      <div class="err" id="e-wa"></div>
+      <button class="pill" id="sb" type="submit" style="margin-top:6px">Join the airdrop</button>
+    </form>
+    <button class="back" id="back" type="button">← Back</button>
+  </div>`;
+  const el=document.getElementById("wa"), err=document.getElementById("e-wa"), sb=document.getElementById("sb");
+  el.addEventListener("input",()=>{st.draftWallet=el.value;save();});
+  document.getElementById("back").onclick=()=>go(TASKS.length-1);
+  document.getElementById("fw").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const w=el.value.trim();
+    if(!/^0x[a-fA-F0-9]{40}$/.test(w)){el.classList.add("bad");err.textContent="Enter an EVM address: 0x + 40 characters.";return;}
+    sb.disabled=true; sb.textContent="Joining…"; err.textContent="";
+    try{
+      const r=await fetch(CONFIG.SUBMIT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body:JSON.stringify({handle:st.handle,wallet:w,tasks:TASKS.map(t=>t.id).join(",")})});
+      const j=await r.json().catch(()=>({ok:false}));
+      if(!j.ok){
+        sb.disabled=false; sb.textContent="Join the airdrop";
+        err.textContent = j.error==="duplicate" ? "This wallet or X account is already in the airdrop."
+          : j.error==="rate" ? "Too many attempts. Wait a minute and try again."
+          : j.error==="invalid" ? "Check your username and wallet, then try again."
+          : "The airdrop is not accepting entries right now. Try again soon.";
+        return;
+      }
+      st.done={handle:st.handle,wallet:w,n:j.n}; st.step=99; save(); view();
+    }catch(x){
+      sb.disabled=false; sb.textContent="Join the airdrop";
+      err.textContent="Couldn't reach the server. Try again in a moment.";
+    }
+  });
 }
 
 function unlocked(){
+  const d=st.done;
   main.innerHTML=`<div class="stage">
-    ${dots(5)}
-    <div class="count">All tasks done</div>
+    ${dots(STEPS-1)}
+    <div class="count">Entry #${String(d.n||"").padStart(4,"0")}</div>
     <div class="task-ico">${I.done}</div>
     <h2>You're in the ${CONFIG.TICKER} airdrop</h2>
+    <p class="cap">@${esc(d.handle)} · ${esc(d.wallet.slice(0,6))}…${esc(d.wallet.slice(-4))}</p>
     <p class="cap">Last step: join the Discord and press <b>Verify</b> to get the Broker role. Airdrop updates are posted there first.</p>
     <a class="pill cta" href="${CONFIG.INVITE}" target="_blank" rel="noopener">${DLOGO}Join Discord</a>
-    <button class="back" id="back" type="button">← Back</button>
   </div>`;
-  document.getElementById("back").onclick=()=>go(TASKS.length-1);
 }
 
 view();

@@ -1,0 +1,26 @@
+name: Discord post message
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Channel name without emoji (e.g. x-raids, announcements)
+        required: true
+      text:
+        description: Message text (use \n for a new line)
+        required: true
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Post
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          CHANNEL: ${{ inputs.channel }}
+          TEXT: ${{ inputs.text }}
+        run: python3 discord/post.py

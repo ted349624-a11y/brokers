@@ -1,6 +1,20 @@
 {
   "rewrites": [
-    { "source": "/discord", "destination": "/join.html" },
-    { "source": "/discord/", "destination": "/join.html" }
+    {
+      "source": "/discord",
+      "destination": "/join.html"
+    },
+    {
+      "source": "/discord/",
+      "destination": "/join.html"
+    },
+    {
+      "source": "/airdrop",
+      "destination": "/airdrop.html"
+    },
+    {
+      "source": "/airdrop/",
+      "destination": "/airdrop.html"
+    }
   ]
 }

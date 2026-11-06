@@ -1,6 +1,6 @@
 {
-  "redirects": [
-    { "source": "/discord", "destination": "https://discord.gg/v9EUqBe9U", "permanent": false },
-    { "source": "/discord/", "destination": "https://discord.gg/v9EUqBe9U", "permanent": false }
+  "rewrites": [
+    { "source": "/discord", "destination": "/join.html" },
+    { "source": "/discord/", "destination": "/join.html" }
   ]
 }

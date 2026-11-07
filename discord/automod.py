@@ -88,6 +88,7 @@ def main():
             "trigger_type": 1,
             "trigger_metadata": {"regex_patterns": [r"0x[a-f0-9]{40}"]},
             "actions": [block("Don't post wallet addresses in Discord. Submit your wallet on elysiumbroker.xyz."), alert],
+            "exempt_channels": [chans[c] for c in ("wallet-submit",) if c in chans],   # wallets allowed here
         },
         {   # no big header text (# / ## / ###) from members
             "name": "EB · No big text",
@@ -118,6 +119,8 @@ def main():
                 "actions": r["actions"], "enabled": True, "exempt_roles": exempt}
         if "trigger_metadata" in r:
             body["trigger_metadata"] = r["trigger_metadata"]
+        if "exempt_channels" in r:
+            body["exempt_channels"] = r["exempt_channels"]
         if r["name"] in existing:
             body.pop("trigger_type")  # can't change type on update
             call("PATCH", f"/guilds/{gid}/auto-moderation/rules/{existing[r['name']]['id']}", body)

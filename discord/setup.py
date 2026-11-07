@@ -62,6 +62,7 @@ PRETTY = {
     "trading floor": "📈 Trading Floor",
     "og lounge": "OG Lounge " + LINE * 10,
     "og-lounge": "🌸" + SEP + "og-lounge",
+    "wallet-submit": "👛" + SEP + "wallet-submit",
 }
 CATEGORY_SUPPORT = "Support " + LINE * 10
 CHANNEL_SUPPORT = "🎫" + SEP + "support"

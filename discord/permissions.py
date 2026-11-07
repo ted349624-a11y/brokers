@@ -21,6 +21,7 @@ HIDDEN = {"memes"}
 STAFF_ONLY = {"team-chat", "mod-log", "team"}
 BROKER_ONLY = {"gtd-lounge", "gtd lounge", "wl-lounge", "wl lounge", "broker-lounge", "broker lounge"}
 OG_ONLY = {"og-lounge", "og lounge"}
+WALLET_SUBMIT = {"wallet-submit"}
 GATE = "verify"
 
 
@@ -53,6 +54,10 @@ def main():
         elif name in STAFF_ONLY:
             ows = [ow(everyone, 0, VIEW)] + staff
             label = "team only"
+        elif name in WALLET_SUBMIT:
+            ws = [roles[n]["id"] for n in ("OG", "GTD") if n in roles]
+            ows = [ow(everyone, 0, VIEW)] + [ow(r, READ | SEND, NO_MEDIA | THREADS_SEND | PUB_THREADS | PRIV_THREADS) for r in ws] + staff
+            label = "OG + GTD only"
         elif name in OG_ONLY:
             og = roles.get("OG", {}).get("id")
             ows = [ow(everyone, 0, VIEW)] + ([ow(og, READ | SEND, NO_MEDIA)] if og else []) + staff

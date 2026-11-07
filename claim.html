@@ -165,9 +165,10 @@ async function check(w){
     <div class="addr">${esc(j.wallet)}</div>
     ${j.held>0
       ? `<button class="pill cta" type="button" disabled>Claim opens at $BROKER launch</button>
+         <a class="pill cta ghost" href="${OPENSEA}" target="_blank" rel="noopener">Mint more on OpenSea</a>
          <p class="small">Keep your Brokers in this wallet. The more you hold, the more you get.</p>`
       : `<p class="cap">No Broker NFTs in this wallet yet.</p>
-         <a class="pill cta" href="${OPENSEA}" target="_blank" rel="noopener">Get a Broker on OpenSea</a>`}
+         <a class="pill cta" href="${OPENSEA}" target="_blank" rel="noopener">Mint on OpenSea</a>`}
     <button class="back" id="again" type="button">← Check another wallet</button>
   </div>`;
   document.getElementById("again").onclick=()=>form();

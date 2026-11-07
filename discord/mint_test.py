@@ -8,8 +8,10 @@ def post(u, b):
     with urllib.request.urlopen(req, timeout=40) as r: return json.loads(r.read())
 s = get(SITE + "/api/mint")
 print("status:", {k: s.get(k) for k in ("ok", "open", "supply", "minted", "treasury")}, "start_utc:", s.get("start"))
-p = get(SITE + "/api/mint?wallet=0x" + "0" * 39 + "1")
-print("random wallet tier:", p.get("tier"), p.get("tierLabel"), "partial:", p.get("partial"))
+import secrets
+for label, w in (("0x000…0001", "0x" + "0" * 39 + "1"), ("truly random", "0x" + secrets.token_hex(20))):
+    p = get(SITE + "/api/mint?wallet=" + w)
+    print(f"{label} tier:", p.get("tier"), "lists:", p.get("lists"), "partial:", p.get("partial"))
 for ch in ("hyperevm", "ethereum", "base", "arbitrum"):
     r = post(SITE + "/api/mint", {"chain": ch, "tx": "0x" + "0" * 63 + "1"})
     print(f"{ch:9} rpc check ->", r.get("status") or r.get("error"), r.get("message", ""))

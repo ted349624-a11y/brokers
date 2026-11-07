@@ -59,7 +59,8 @@ async function tiersFor(wallet) {
       if (names.includes("OG")) tiers.push("OG");
     }
   } catch { partial = true; }
-  if ((await redis("GET", `eb:w:${wallet}`)) || (await redis("GET", `w:${wallet}`))) tiers.push("FCFS");
+  // only our own namespace: the database is shared with another project
+  if (await redis("GET", `eb:w:${wallet}`)) tiers.push("FCFS");
   return { tiers, partial };
 }
 

@@ -29,6 +29,12 @@ while True:
         break
 msgs.sort(key=lambda m: int(m["id"]))           # oldest first
 
+# Safety: if user messages come back with no text, the bot can't read message content
+# (Message Content Intent is off). Never delete anything in that case.
+users = [m for m in msgs if not m["author"].get("bot") and m.get("type", 0) in (0, 19)]
+if users and all(not m.get("content") and not m.get("attachments") for m in users):
+    sys.exit("Message content is unreadable (enable Message Content Intent). Nothing was deleted.")
+
 member_cache = {}
 def is_staff(uid):
     if uid == owner: return True

@@ -15,6 +15,14 @@
     {
       "source": "/airdrop/",
       "destination": "/airdrop.html"
+    },
+    {
+      "source": "/checker",
+      "destination": "/checker.html"
+    },
+    {
+      "source": "/checker/",
+      "destination": "/checker.html"
     }
   ]
 }

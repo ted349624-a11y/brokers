@@ -23,6 +23,8 @@ BROKER_ONLY = {"gtd-lounge", "gtd lounge", "wl-lounge", "wl lounge", "broker-lou
 OG_ONLY = {"og-lounge", "og lounge"}
 WALLET_SUBMIT = {"wallet-submit"}
 GATE = "verify"
+# Lockdown: nobody but Team / Mod / owner can write in any text channel. Set to False to reopen chat.
+LOCKDOWN = True
 
 
 def ow(i, allow=0, deny=0):
@@ -77,6 +79,15 @@ def main():
         else:
             ows = [ow(everyone, 0, VIEW), ow(user, READ, NO_WRITE | NO_MEDIA)] + staff
             label = "verified users, read-only"
+        if LOCKDOWN and kind in (0, 5, 15):
+            staff_ids = {team, mod}
+            for o in ows:
+                if o["id"] not in staff_ids:
+                    o["allow"] = str(int(o["allow"]) & ~NO_WRITE)
+                    o["deny"] = str(int(o["deny"]) | NO_WRITE)
+            label += " · LOCKED"
+        # keep per-member overwrites (e.g. wallet-submit locks)
+        ows += [o for o in c.get("permission_overwrites", []) if o["type"] == 1]
         call("PATCH", f"/channels/{c['id']}", {"permission_overwrites": ows})
         print(f"{c['name']}: {label}")
     print("\nDone.")

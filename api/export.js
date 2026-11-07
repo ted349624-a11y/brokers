@@ -4,6 +4,7 @@
 //   /api/export?key=ADMIN_KEY&list=mints      mint reservations (airdrop these wallets on Nov 9)
 //   /api/export?key=ADMIN_KEY&list=refunds    payments to refund (underpaid, double, sold out, early)
 //   /api/export?key=ADMIN_KEY&list=all        every whitelisted wallet: FCFS (website) + GTD/OG (#wallet-submit), one row per wallet
+//   ...&list=all&opensea=gtd  /  &opensea=wl   OpenSea drop allowlist files (address,limit). &limit=2 to change the per-wallet limit
 const { redis } = require("./_db");
 const LISTS = {
   whitelist: { key: "eb:wl:entries", cols: ["n", "handle", "wallet", "tasks", "ts"] },
@@ -73,6 +74,16 @@ async function all(req, res) {
   const out = [...rows.values()].map(r => ({ ...r, tier: r.gtd || r.og ? "GTD/OG" : r.fcfs ? "WL" : "" }))
     .filter(r => r.tier)
     .sort((a, b) => (a.tier === b.tier ? 0 : a.tier === "GTD/OG" ? -1 : 1));
+  if (req.query.opensea) {
+    // OpenSea drop allowlist: one wallet per line -> "address,mint_limit". Stage price is set in OpenSea.
+    // opensea=gtd -> GTD/OG stage, opensea=wl -> WL stage (wallets already in GTD/OG are left out)
+    const want = req.query.opensea === "gtd" ? "GTD/OG" : "WL";
+    const limit = /^[0-9]{1,3}$/.test(req.query.limit || "") ? req.query.limit : "1";
+    const lines = out.filter(r => r.tier === want).map(r => `${r.wallet},${limit}`);
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="opensea-allowlist-${req.query.opensea === "gtd" ? "gtd-og" : "wl"}.csv"`);
+    return res.status(200).send(lines.join("\n") + "\n");
+  }
   if (req.query.format === "json") return res.status(200).json(out);
   const cols = ["wallet", "tier", "gtd", "og", "fcfs", "x_handle", "discord"];
   res.setHeader("Content-Type", "text/csv; charset=utf-8");

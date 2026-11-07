@@ -68,7 +68,8 @@ module.exports = async (req, res) => {
         if (names.includes("OG")) tiers.push("OG");
       }
     } catch (e) { discordOk = false; }
-    if (await redis("GET", `eb:wl:w:${wallet}`)) tiers.push("FCFS");
+    // the website stores each applicant wallet under eb:w:<wallet> (w:<wallet> for any pre-namespace entries)
+    if ((await redis("GET", `eb:w:${wallet}`)) || (await redis("GET", `w:${wallet}`))) tiers.push("FCFS");
     return res.status(200).json({ ok: true, wallet, tiers, partial: !discordOk });
   } catch (e) {
     return res.status(500).json({ ok: false, error: "server" });

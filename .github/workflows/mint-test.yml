@@ -1,0 +1,17 @@
+name: Mint smoke test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  minttest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test the live mint API
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: python3 discord/mint_test.py

@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       wallet:
+        description: Wallet address (or "cleanup" to delete the temporary branch)
         required: true
       match:
         default: liquid
@@ -15,17 +16,28 @@ jobs:
   download:
     runs-on: ubuntu-latest
     steps:
+      - name: Cleanup only
+        if: inputs.wallet == 'cleanup'
+        run: |
+          git ls-remote --exit-code "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" refs/heads/tmp-nft-images \
+            && git push "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" --delete tmp-nft-images || echo "nothing to delete"
+          exit 0
       - uses: actions/checkout@v4
+        if: inputs.wallet != 'cleanup'
       - uses: actions/setup-python@v5
+        if: inputs.wallet != 'cleanup'
         with:
           python-version: "3.12"
       - run: pip install -q solders
+        if: inputs.wallet != 'cleanup'
       - name: Download
+        if: inputs.wallet != 'cleanup'
         env:
           WALLET: ${{ inputs.wallet }}
           MATCH: ${{ inputs.match }}
         run: python3 tools/solana_nfts.py
       - name: Hand the files over on a temporary branch
+        if: inputs.wallet != 'cleanup'
         run: |
           du -sh out
           cd out

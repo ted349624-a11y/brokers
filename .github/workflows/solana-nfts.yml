@@ -8,6 +8,9 @@ on:
       match:
         default: liquid
 
+permissions:
+  contents: write
+
 jobs:
   download:
     runs-on: ubuntu-latest
@@ -22,8 +25,12 @@ jobs:
           WALLET: ${{ inputs.wallet }}
           MATCH: ${{ inputs.match }}
         run: python3 tools/solana_nfts.py
-      - uses: actions/upload-artifact@v4
-        with:
-          name: nft-images
-          path: out/
-          retention-days: 1
+      - name: Hand the files over on a temporary branch
+        run: |
+          du -sh out
+          cd out
+          git init -q -b tmp-nft-images
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A && git commit -qm "temporary: NFT images"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" tmp-nft-images

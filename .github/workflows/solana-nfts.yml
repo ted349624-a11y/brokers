@@ -19,9 +19,10 @@ jobs:
       - name: Cleanup only
         if: inputs.wallet == 'cleanup'
         run: |
-          git ls-remote --exit-code "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" refs/heads/tmp-nft-images \
-            && git push "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" --delete tmp-nft-images || echo "nothing to delete"
-          exit 0
+          git init -q cleanup && cd cleanup
+          for b in tmp-nft-images airdrop; do
+            git push "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" --delete "$b" && echo "deleted $b" || echo "no $b"
+          done
       - uses: actions/checkout@v4
         if: inputs.wallet != 'cleanup'
       - uses: actions/setup-python@v5

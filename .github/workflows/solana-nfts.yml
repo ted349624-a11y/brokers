@@ -1,0 +1,29 @@
+name: Download Solana NFT images
+
+on:
+  workflow_dispatch:
+    inputs:
+      wallet:
+        required: true
+      match:
+        default: liquid
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q solders
+      - name: Download
+        env:
+          WALLET: ${{ inputs.wallet }}
+          MATCH: ${{ inputs.match }}
+        run: python3 tools/solana_nfts.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nft-images
+          path: out/
+          retention-days: 1

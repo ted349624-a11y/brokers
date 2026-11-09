@@ -8,6 +8,11 @@ on:
         required: true
       match:
         default: liquid
+      mode:
+        description: wallet or collection
+        default: wallet
+      top:
+        default: "555"
 
 permissions:
   contents: write
@@ -29,14 +34,16 @@ jobs:
         if: inputs.wallet != 'cleanup'
         with:
           python-version: "3.12"
-      - run: pip install -q solders
+      - run: pip install -q solders base58
         if: inputs.wallet != 'cleanup'
       - name: Download
         if: inputs.wallet != 'cleanup'
         env:
           WALLET: ${{ inputs.wallet }}
+          SAMPLE: ${{ inputs.wallet }}
           MATCH: ${{ inputs.match }}
-        run: python3 tools/solana_nfts.py
+          TOP: ${{ inputs.top }}
+        run: if [ "${{ inputs.mode }}" = "collection" ]; then python3 tools/solana_collection.py; else python3 tools/solana_nfts.py; fi
       - name: Hand the files over on a temporary branch
         if: inputs.wallet != 'cleanup'
         run: |
